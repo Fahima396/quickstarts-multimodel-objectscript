@@ -50,7 +50,7 @@ ClassMethod PopulateAirports() As %Status
 	
 	//3. Austin
 	set newAirport = ##class(Demo.Airport).%New()
-	set newAirport.Name = "Austin–Bergstrom International"
+	set newAirport.Name = "Austinâ€“Bergstrom International"
 	set newAirport.Code = "AUS"
 	set newAirport.Location = ##class(Demo.Location).%New()
 	set newAirport.Location.City = "Austin"
@@ -97,29 +97,4 @@ ClassMethod StoreAirfare(fromAirport As %String, toAirport As %String) As %Statu
 
 	quit $$$OK
 }
-
-Storage Default
-{
-<Data name="AirportDefaultData">
-<Value name="1">
-<Value>%%CLASSNAME</Value>
-</Value>
-<Value name="2">
-<Value>Name</Value>
-</Value>
-<Value name="3">
-<Value>Code</Value>
-</Value>
-<Value name="4">
-<Value>Location</Value>
-</Value>
-</Data>
-<DataLocation>^Demo.AirportD</DataLocation>
-<DefaultData>AirportDefaultData</DefaultData>
-<IdLocation>^Demo.AirportD</IdLocation>
-<IndexLocation>^Demo.AirportI</IndexLocation>
-<StreamLocation>^Demo.AirportS</StreamLocation>
-<Type>%Storage.Persistent</Type>
-}
-
 }
