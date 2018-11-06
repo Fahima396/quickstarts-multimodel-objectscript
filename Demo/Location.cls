@@ -1,13 +1,10 @@
-Class Demo.Location Extends (%Persistent, %Populate)
+///Purpose: This class store location data for airports.
+Class Demo.Location Extends (%Persistent)
 {
 
 Property City As %String;
 
 Property State As %String;
-
-Property Longitude As %Decimal;
-
-Property Latitude As %Decimal;
 
 Storage Default
 {
@@ -20,12 +17,6 @@ Storage Default
 </Value>
 <Value name="3">
 <Value>State</Value>
-</Value>
-<Value name="4">
-<Value>Longitude</Value>
-</Value>
-<Value name="5">
-<Value>Latitude</Value>
 </Value>
 </Data>
 <DataLocation>^Demo.LocationD</DataLocation>
