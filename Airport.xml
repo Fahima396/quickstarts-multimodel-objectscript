@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="IRIS" version="26" zv="IRIS for Windows (x86-64) 2019.2.0S (Build 229U)" ts="2020-03-09 17:02:07">
+<Class name="Demo.Airport">
+<Description>
+Purpose: This class shows a multimodel example in ObjectScript. SQL is used to display airports,
+objects are stored directly, and a custom data structure is used to determine airfare.</Description>
+<Super>%Persistent</Super>
+<TimeChanged>65447,61128.439607</TimeChanged>
+<TimeCreated>65447,55099.47517</TimeCreated>
+
+<Property name="Name">
+<Type>%String</Type>
+</Property>
+
+<Property name="Code">
+<Type>%String</Type>
+</Property>
+
+<Property name="Location">
+<Type>Demo.Location</Type>
+</Property>
+
+<Method name="DisplayAirports">
+<Description>
+Display all airports using cursor-based embedded SQL</Description>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	&sql(DECLARE c1 CURSOR FOR
+       	SELECT Name, Code, Location->City, Location->State INTO :name, :code, :city, :state
+       	FROM Demo.Airport)
+       	
+	&sql(OPEN c1)
+	&sql(FETCH c1)
+	write "Airport",?35,"Code",?45,"Location",!
+	while (SQLCODE = 0) {
+		write name,?35,code,?45, city,",",state,!
+	   	&sql(FETCH c1) 
+	}
+	&sql(CLOSE c1)
+		
+	quit $$$OK
+]]></Implementation>
+</Method>
+
+<Method name="PopulateAirports">
+<Description>
+Store objects directly to the database</Description>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	//1. Boston
+	set newAirport = ##class(Demo.Airport).%New()
+	do newAirport.%DeleteExtent()
+	set newAirport.Name = "Boston Logan International"
+	set newAirport.Code = "BOS"
+	set newAirport.Location = ##class(Demo.Location).%New()
+	set newAirport.Location.City = "Boston"
+	set newAirport.Location.State = "MA"
+	do newAirport.%Save()
+	
+	//2. Philadephia
+	set newAirport = ##class(Demo.Airport).%New()
+	set newAirport.Name = "Philadephia International"
+	set newAirport.Code = "PHL"
+	set newAirport.Location = ##class(Demo.Location).%New()
+	set newAirport.Location.City = "Philadelphia"
+	set newAirport.Location.State = "PA"
+	do newAirport.%Save()
+	
+	//3. Austin
+	set newAirport = ##class(Demo.Airport).%New()
+	set newAirport.Name = "Austin–Bergstrom International"
+	set newAirport.Code = "AUS"
+	set newAirport.Location = ##class(Demo.Location).%New()
+	set newAirport.Location.City = "Austin"
+	set newAirport.Location.State = "TX"
+	do newAirport.%Save()
+	
+	//4. San Francisco
+	set newAirport = ##class(Demo.Airport).%New()
+	set newAirport.Name = "San Francisco International"
+	set newAirport.Code = "SFO"
+	set newAirport.Location = ##class(Demo.Location).%New()
+	set newAirport.Location.City = "San Francisco"
+	set newAirport.Location.State = "CA"
+	do newAirport.%Save()	
+	
+	//5. O'hare
+	set newAirport = ##class(Demo.Airport).%New()
+	set newAirport.Name = "O'hare International"
+	set newAirport.Code = "ORD"
+	set newAirport.Location = ##class(Demo.Location).%New()
+	set newAirport.Location.City = "Chicago"
+	set newAirport.Location.State = "IL"
+	do newAirport.%Save()
+	
+	quit $$$OK
+]]></Implementation>
+</Method>
+
+<Method name="StoreAirfare">
+<Description>
+Create a custom data structure to store airfare in a graph-like structure and retrieve airfare based on nodes
+Takes departure airport and arrival airport as arguments</Description>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	set ^airport("BOS","AUS") = 1698
+	set ^airport("BOS","AUS","AA150") = 450
+	set ^airport("BOS","AUS","AA290") = 550
+	
+	set ^airport("BOS","PHL") = 280
+	set ^airport("BOS","PHL","UA110") = 200
+	
+	set ^airport("BOS","BIS") = 1490
+	set ^airport("BOS","BIS","AA330") = 700
+	set ^airport("BOS","BIS","UA208") = 710
+	
+	write "Stored fare and distance data in ^airport global."
+	quit $$$OK
+]]></Implementation>
+</Method>
+
+<Method name="CheckAirfare">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>fromAirport:%String,toAirport:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	write !,"The distance in miles between " _ fromAirport _ " and "_ toAirport _ " is: " _ $get(^airport(fromAirport, toAirport)) 
+    set isDefined = $data(^airport(fromAirport,toAirport))
+    if ((isDefined = 11)) { 
+    	write !,"The following routes exist for this path:"
+    	set flightNumber = ""
+    	while ($order(^airport(fromAirport,toAirport, flightNumber)) '= ""){
+    		set flightNumber = $order(^airport(fromAirport,toAirport, flightNumber))
+    		set fare = ^airport(fromAirport,toAirport, flightNumber)
+    		write !,"  - " _ flightNumber _ ": " _ fare _ " USD"
+    	}
+    }
+    else{
+	    write "No routes exist for this path."
+	}
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Storage.Persistent</Type>
+<DataLocation>^Demo.AirportD</DataLocation>
+<DefaultData>AirportDefaultData</DefaultData>
+<IdLocation>^Demo.AirportD</IdLocation>
+<IndexLocation>^Demo.AirportI</IndexLocation>
+<StreamLocation>^Demo.AirportS</StreamLocation>
+<Data name="AirportDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>Name</Value>
+</Value>
+<Value name="3">
+<Value>Code</Value>
+</Value>
+<Value name="4">
+<Value>Location</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
+<Class name="Demo.Location">
+<Description>
+Purpose: This class store location data for airports.</Description>
+<Super>%Persistent</Super>
+<TimeChanged>65447,55135.994906</TimeChanged>
+<TimeCreated>65447,55126.77249</TimeCreated>
+
+<Property name="City">
+<Type>%String</Type>
+</Property>
+
+<Property name="State">
+<Type>%String</Type>
+</Property>
+
+<Storage name="Default">
+<Type>%Storage.Persistent</Type>
+<DataLocation>^Demo.LocationD</DataLocation>
+<DefaultData>LocationDefaultData</DefaultData>
+<IdLocation>^Demo.LocationD</IdLocation>
+<IndexLocation>^Demo.LocationI</IndexLocation>
+<StreamLocation>^Demo.LocationS</StreamLocation>
+<Data name="LocationDefaultData">
+<Structure>listnode</Structure>
+<Subscript/>
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>City</Value>
+</Value>
+<Value name="3">
+<Value>State</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>

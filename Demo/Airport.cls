@@ -1,6 +1,6 @@
-///Purpose: This class shows a multimodel example in ObjectScript. SQL is used to display airports,
-///objects are stored directly, and a custom data structure is used to determine airfare.
-Class Demo.Airport Extends (%Persistent)
+/// Purpose: This class shows a multimodel example in ObjectScript. SQL is used to display airports,
+/// objects are stored directly, and a custom data structure is used to determine airfare.
+Class Demo.Airport Extends %Persistent
 {
 
 Property Name As %String;
@@ -9,7 +9,7 @@ Property Code As %String;
 
 Property Location As Demo.Location;
 
-///Display all airports using cursor-based embedded SQL
+/// Display all airports using cursor-based embedded SQL
 ClassMethod DisplayAirports() As %Status
 {
 	&sql(DECLARE c1 CURSOR FOR
@@ -27,11 +27,13 @@ ClassMethod DisplayAirports() As %Status
 		
 	quit $$$OK
 }
-///Store objects directly to the database
+
+/// Store objects directly to the database
 ClassMethod PopulateAirports() As %Status
 {
 	//1. Boston
 	set newAirport = ##class(Demo.Airport).%New()
+	do newAirport.%DeleteExtent()
 	set newAirport.Name = "Boston Logan International"
 	set newAirport.Code = "BOS"
 	set newAirport.Location = ##class(Demo.Location).%New()
@@ -78,23 +80,41 @@ ClassMethod PopulateAirports() As %Status
 	quit $$$OK
 }
 
-///Create a custom data structure to store airfare in a graph-like structure and retrieve airfare based on nodes
-///Takes departure airport and arrival airport as arguments
-ClassMethod StoreAirfare(fromAirport As %String, toAirport As %String) As %Status
+/// Create a custom data structure to store airfare in a graph-like structure and retrieve airfare based on nodes
+/// Takes departure airport and arrival airport as arguments
+ClassMethod StoreAirfare() As %Status
 {
-	set ^AIRPORT("BOS","AUS") = 1698
-	set ^AIRPORT("BOS","AUS","AA150") = 450
-	set ^AIRPORT("BOS","AUS","AA290") = 550
-	set ^AIRPORT("BOS","PHL","UA110") = 200
-	set ^AIRPORT("BOS","BIS","AA330") = 700
-	set ^AIRPORT("BOS","BIS","UA208") = 710
+	set ^airport("BOS","AUS") = 1698
+	set ^airport("BOS","AUS","AA150") = 450
+	set ^airport("BOS","AUS","AA290") = 550
 	
-	set hasRoutes = "This path has no routes."
-    set isDefined = $data(^AIRPORT(fromAirport,toAirport))
-    if ((isDefined = 11) || (isDefined = 1)) { set hasRoutes = "This path has routes." }
-    write "Printed to ^AIRPORT global. The distance in miles between " _ fromAirport _ " and "
-             _ toAirport _ " is: " _ $get(^AIRPORT(fromAirport, toAirport)) _ ". " _ hasRoutes
-
+	set ^airport("BOS","PHL") = 280
+	set ^airport("BOS","PHL","UA110") = 200
+	
+	set ^airport("BOS","BIS") = 1490
+	set ^airport("BOS","BIS","AA330") = 700
+	set ^airport("BOS","BIS","UA208") = 710
+	
+	write "Stored fare and distance data in ^airport global."
 	quit $$$OK
 }
+
+ClassMethod CheckAirfare(fromAirport As %String, toAirport As %String) As %Status
+{
+	write !,"The distance in miles between " _ fromAirport _ " and "_ toAirport _ " is: " _ $get(^airport(fromAirport, toAirport)) 
+    set isDefined = $data(^airport(fromAirport,toAirport))
+    if ((isDefined = 11)) { 
+    	write !,"The following routes exist for this path:"
+    	set flightNumber = ""
+    	while ($order(^airport(fromAirport,toAirport, flightNumber)) '= ""){
+    		set flightNumber = $order(^airport(fromAirport,toAirport, flightNumber))
+    		set fare = ^airport(fromAirport,toAirport, flightNumber)
+    		write !,"  - " _ flightNumber _ ": " _ fare _ " USD"
+    	}
+    }
+    else{
+	    write "No routes exist for this path."
+	}
+}
+
 }
