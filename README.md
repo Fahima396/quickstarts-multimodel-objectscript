@@ -1,12 +1,13 @@
 # multimodel-objectscript-quickstart
 
 ## In this repo
+.  
 ├── Demo  
 │   ├── Airport.cls  
 │   └── Location.cls  
 └── README.md  
 
-## Guided Tutorial
+## Guided tutorial
 For a guided tutorial using this sample, visit [Accessing Data in ObjectScript Using Multiple Data Models](https://learning.intersystems.com/course/view.php?name=ObjectScriptMultiModel) on the InterSystems learning site.
 
 ## How to use this sample on your own
