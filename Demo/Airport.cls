@@ -1,6 +1,6 @@
 ///Purpose: This class shows a multimodel example in ObjectScript. SQL is used to display airports,
 ///objects are stored directly, and a custom data structure is used to determine airfare.
-Class Demo.Airport Extends (%Persistent)
+Class Demo.Airport Extends (%Persistent) [DdlAllowed]
 {
 
 Property Name As %String;
