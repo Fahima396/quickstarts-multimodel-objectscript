@@ -1,6 +1,6 @@
-///Purpose: This class shows a multimodel example in ObjectScript. SQL is used to display airports,
-///objects are stored directly, and a custom data structure is used to determine airfare.
-Class Demo.Airport Extends (%Persistent) [DdlAllowed]
+/// Purpose: This class shows a multimodel example in ObjectScript. SQL is used to display airports,
+/// objects are stored directly, and a custom data structure is used to determine airfare.
+Class Demo.Airport Extends %Persistent [ DdlAllowed ]
 {
 
 Property Name As %String;
@@ -9,7 +9,7 @@ Property Code As %String;
 
 Property Location As Demo.Location;
 
-///Display all airports using cursor-based embedded SQL
+/// Display all airports using cursor-based embedded SQL
 ClassMethod DisplayAirports() As %Status
 {
 	&sql(DECLARE c1 CURSOR FOR
@@ -27,7 +27,8 @@ ClassMethod DisplayAirports() As %Status
 		
 	quit $$$OK
 }
-///Store objects directly to the database
+
+/// Store objects directly to the database
 ClassMethod PopulateAirports() As %Status
 {
 	//1. Boston
@@ -114,4 +115,29 @@ ClassMethod CheckAirfare(fromAirport As %String, toAirport As %String) As %Statu
 	    write "No routes exist for this path."
 	}
 }
+
+Storage Default
+{
+<Data name="AirportDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>Name</Value>
+</Value>
+<Value name="3">
+<Value>Code</Value>
+</Value>
+<Value name="4">
+<Value>Location</Value>
+</Value>
+</Data>
+<DataLocation>^Demo.AirportD</DataLocation>
+<DefaultData>AirportDefaultData</DefaultData>
+<IdLocation>^Demo.AirportD</IdLocation>
+<IndexLocation>^Demo.AirportI</IndexLocation>
+<StreamLocation>^Demo.AirportS</StreamLocation>
+<Type>%Storage.Persistent</Type>
+}
+
 }
